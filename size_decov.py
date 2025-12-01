@@ -58,18 +58,16 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 		mod.set_param_hint('center', value=peak)
 		mod.set_param_hint('amplitude', min=0)
 
-		if peak == 70:
+		if 60 in peaks_cen and 70 in peaks_cen and peak == 70:
 			mod.set_param_hint('sigma', expr='peak60_sigma')
-		elif peak == 90:
+		elif 80 in peaks_cen and 90 in peaks_cen and peak == 90:
 			mod.set_param_hint('sigma', expr='peak80_sigma')
-		elif peak == 110:
-			mod.set_param_hint('sigma', expr='peak100_sigma')
-		elif peak == 130:
-			mod.set_param_hint('sigma', expr='peak120_sigma')
-		elif peak == 150:
-			mod.set_param_hint('sigma', expr='peak140_sigma')
-		elif peak >= 190:
-			mod.set_param_hint('sigma', expr='peak180_sigma')
+		elif 101 in peaks_cen and 111 in peaks_cen and peak == 111:
+			mod.set_param_hint('sigma', expr='peak101_sigma')
+		elif 121 in peaks_cen and 131 in peaks_cen and peak == 131:
+			mod.set_param_hint('sigma', expr='peak121_sigma')
+		elif 141 in peaks_cen and 151 in peaks_cen and peak == 151:
+			mod.set_param_hint('sigma', expr='peak141_sigma')
 		else:
 			mod.set_param_hint('sigma', max=max_scale)
 
@@ -93,6 +91,73 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 	final_res = []
 	for loc, (scale, amp) in sorted(result_par.items()):
 		final_res.append((loc, scale, amp))
+	return final_res
+
+
+def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale=8,lam=0.00002):
+	from lmfit import Minimizer, Parameters, report_fit
+	from lmfit.lineshapes import gaussian, lorentzian
+	from lmfit import models
+
+	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
+	def residual(pars, x, data):
+		model = None
+		for idx in range(len(peaks_cen)):
+			peak = peaks_cen[idx]
+			mod = lorentzian(
+				x,
+				pars[f'peak{peak}_amplitude'],
+				pars[f'peak{peak}_center'],
+				pars[f'peak{peak}_sigma'])
+			if model is None:
+				model = mod
+			else:
+				model = model + mod
+
+		sigmas = []
+		for peak in peaks_cen:
+			name = f'peak{peak}_sigma'
+			if name in pars and not pars[name].expr:  # skip those with expr (linked)
+				sigmas.append(pars[name].value)
+		sigmas = np.array(sigmas)
+
+		return model-data+ lam*np.sum(sigmas)**2
+
+	pfit = Parameters()
+	for idx in range(len(peaks_cen)):
+		peak = peaks_cen[idx]
+
+		pfit.add(name=f'peak{peak}_amplitude', min=0.01)
+		pfit.add(name=f'peak{peak}_center', value=peaks_cen[idx], min=peaks_cen[idx]-3, max=peaks_cen[idx]+3)
+		#pfit.add(name=f'peak{peak}_center', value=peaks_cen[idx])
+
+		if 60 in peaks_cen and 70 in peaks_cen and peak == 70:
+			mod.set_param_hint('sigma', expr='peak60_sigma')
+		elif 90 in peaks_cen and 80 in peaks_cen and peak == 90:
+			mod.set_param_hint('sigma', expr='peak80_sigma')
+		elif 111 in peaks_cen and 101 in peaks_cen and peak == 111:
+			mod.set_param_hint('sigma', expr='peak101_sigma')
+		elif 131 in peaks_cen and 121 in peaks_cen and peak == 131:
+			pfit.add(name='peak{}_sigma'.format(peak), expr='peak121_sigma')
+		elif 151 in peaks_cen and 141 in peaks_cen and peak == 151:
+			pfit.add(name='peak{}_sigma'.format(peak), expr='peak141_sigma')
+		elif peak >= 177:
+			pfit.add(name='peak{}_sigma'.format(peak), expr='peak167_sigma')
+		else:
+			pfit.add(name='peak{}_sigma'.format(peak),  min=min_scale, max=max_scale)
+
+	mini = Minimizer(residual, pfit, fcn_args=(fig_x, fig_y))
+	result = mini.least_squares()
+	pars = result.params
+
+	final_res = []
+	for idx in range(len(peaks_cen)):
+		peak_cen = '{}'.format(peaks_cen[idx]).replace('.', '_')
+		loc, scale, amp = pars['peak{}_center'.format(peak_cen)].value,\
+			pars['peak{}_sigma'.format(peak_cen)].value,\
+			pars['peak{}_amplitude'.format(peak_cen)].value
+		final_res.append((loc, scale, amp))
+	#delta_sig = pars['delta_sig'].value
 	return final_res
 
 
@@ -200,7 +265,7 @@ if __name__ == '__main__':
 	result_pars = peak_decov(
 		x,
 		y,
-		[60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+		[60,70,80,90,101,111,121,131,141,151,159,167,177,188,199],
 		max_scale=8,
 		)
 	print('# Finished')
@@ -209,7 +274,7 @@ if __name__ == '__main__':
 	print('#Location\tScale\tAmplitude')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	plot_peaks(x, y, result_pars, 'size_decov.png')
+	plot_peaks(x, y, result_pars, 'size_decov_ordinary.png')
 
 
 	# size deconvolution with constrains
@@ -217,7 +282,7 @@ if __name__ == '__main__':
 	result_pars = peak_decov_constrain(
 		x,
 		y,
-		[60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210],
+		[60,70,80,90,101,111,121,131,141,151,159,167,177,188,199,210],
 		max_scale=8,
 		)
 	print('# Finished')
@@ -227,3 +292,27 @@ if __name__ == '__main__':
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
 	plot_peaks(x, y, result_pars, 'size_decov_constrains.png')
+
+	######  size deconvolution with constrains and L2 regularization   ######
+	x, y = [], []
+	with open('./example_size_sWGS.txt') as f:
+		for line in f:
+			size, num = line.rstrip().split()
+			size, num = int(size), float(num)
+			x.append(size)
+			y.append(num)
+
+	# size deconvolution with constrains and L2 regularization
+	print('# Start cfDNA size deconvolution with constrains and L2 regularization')
+	result_pars = peak_decov_l2_regularization(
+		x,
+		y,
+		peaks_cen = [121,131,141,151,159,167,177,188,199],
+		)
+	print('# Finished')
+
+	print('#With scale constrains')
+	print('#Location\tScale\tAmplitude')
+	for loc, scl, amp in (result_pars):
+		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
+	plot_peaks(x, y, result_pars, 'size_decov_L2_regularization.png')
