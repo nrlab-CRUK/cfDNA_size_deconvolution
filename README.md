@@ -26,5 +26,6 @@ example_size.txt: size profile of an example plasma cfDNA sample.
 python size_decov.py
 ```
 Apply two fitting models to the example size profile:
-  1) Unconstrained size deconvolution
-  2) Constrained size deconvolution
+  1) Ordinary size deconvolution
+  2) Size deconvolution with constrains
+  3) Size deconvolution with constrains and L2 regularization
