@@ -54,7 +54,7 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
 	model_ar, model, params = [], None, None
 	for peak in peaks_cen:
-		mod = models.LorentzianModel(prefix='peak{}_'.format(peak))
+		mod = models.LorentzianModel(prefix='peak{}_'.format(peak))  # GaussianModel StudentsTModel
 		mod.set_param_hint('center', value=peak)
 		mod.set_param_hint('amplitude', min=0)
 
@@ -80,6 +80,7 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 			model = model + mod
 			params.update(par)
 	result = model.fit(fig_y, params, x=fig_x)
+	print(result.fit_report(), f'\nAIC {result.aic}', f'\nBIC {result.bic}')
 
 	result_par = {}
 	for peak in peaks_cen:
@@ -271,7 +272,7 @@ if __name__ == '__main__':
 	print('# Finished')
 
 	print('#Without constrain')
-	print('#Location\tScale\tAmplitude')
+	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
 	plot_peaks(x, y, result_pars, 'size_decov_ordinary.png')
@@ -288,7 +289,7 @@ if __name__ == '__main__':
 	print('# Finished')
 
 	print('#With scale constrains')
-	print('#Location\tScale\tAmplitude')
+	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
 	plot_peaks(x, y, result_pars, 'size_decov_constrains.png')
@@ -312,7 +313,7 @@ if __name__ == '__main__':
 	print('# Finished')
 
 	print('#With scale constrains')
-	print('#Location\tScale\tAmplitude')
+	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
 	plot_peaks(x, y, result_pars, 'size_decov_L2_regularization.png')
