@@ -35,6 +35,7 @@ def peak_decov(x, y, peaks_cen, max_scale=None):
 			model = model + mod
 			params.update(par)
 	result = model.fit(y, params, x=x)
+	print(result.fit_report(), f'\nAIC {result.aic}', f'\nBIC {result.bic}')
 
 	result_par = {}
 	for peak in peaks_cen:
