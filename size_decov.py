@@ -310,7 +310,6 @@ if __name__ == '__main__':
 	plot_peaks(x, y, result_pars, 'size_decov_constrains.pdf')
 
 
-	######  size deconvolution with constrains and L2 regularization   ######
 	x, y = [], []
 	with open('./example_size_sWGS.txt') as f:
 		for line in f:
@@ -320,7 +319,7 @@ if __name__ == '__main__':
 				x.append(size)
 				y.append(num)
 
-	# size deconvolution with constrains and L2 regularization
+	######  size deconvolution with constrains and L2 regularization   ######
 	print('\n-> Size deconvolution with constrains and L2 regularization')
 	result_pars = peak_decov_l2_regularization(
 		x,
