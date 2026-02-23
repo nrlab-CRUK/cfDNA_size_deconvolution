@@ -6,9 +6,6 @@ __version__ = '2.0'
 
 
 import sys
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-
 
 def peak_decov(x, y, peaks_cen, max_scale=None):
 	'''
@@ -169,6 +166,7 @@ def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale
 
 def color_iter(num, color_family, min_frac, max_frac):
 	import numpy as np
+	import matplotlib.cm as cm
 	color_family = eval("cm.{}".format(color_family))
 	return iter(color_family(np.linspace(min_frac, max_frac, num)))
 
@@ -176,6 +174,9 @@ def color_iter(num, color_family, min_frac, max_frac):
 def plot_peaks(x, y, pars, fig_file='size_decov.pdf', title='', ylim_max=None):
 	import numpy as np
 	from scipy import stats
+	import matplotlib.pyplot as plt
+
+
 	x, y = np.array(x), np.array(y)/sum(y)*100
 	model_ar, model, params = [], None, None
 	x_high = np.linspace(min(x), max(x), num=1000)
