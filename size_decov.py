@@ -253,47 +253,61 @@ def plot_peaks(x, y, pars, fig_file='size_decov.pdf', title='', ylim_max=None):
 	plt.savefig(fig_file)
 
 
+def intra_inter_ratio(result_pars):
+	intra_amp, inter_amp, intra_scale, inter_scale = [], [], [], []
+	for loc, scale, amp in (result_pars):
+		if loc < 155:
+			intra_amp.append(amp)
+			intra_scale.append(scale)
+		else:
+			inter_amp.append(amp)
+			inter_scale.append(scale)
+	intra_inter_amp_ratio =  np.mean(intra_amp)/np.mean(inter_amp)
+	intra_inter_entropy_ratio = np.mean(np.log(4*np.pi*np.array(intra_scale)))/np.mean(np.log(4*np.pi*np.array(inter_scale)))
+	return  intra_inter_amp_ratio, intra_inter_entropy_ratio
+
+
 if __name__ == '__main__':
 	x, y = [], []
 	with open('./example_size.txt') as f:
 		for line in f:
-			size, num = line.rstrip().split()
+			size, num = line.rstrip().split()[:2]
 			size, num = int(size), float(num)
 			x.append(size)
 			y.append(num)
 
-	# ordinary size deconvolution
-	print('# Start cfDNA size deconvolution')
+	######  ordinary size deconvolution  ######
+	print('\n-> Ordinary size deconvolution')
 	result_pars = peak_decov(
 		x,
 		y,
 		[60,70,80,90,101,111,121,131,141,151,159,167,177,188,199],
 		max_scale=8,
 		)
-	print('# Finished')
+	intra_inter_amp_ratio, intra_inter_entropy_ratio = intra_inter_ratio(result_pars)
 
-	print('#Without constrain')
 	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	plot_peaks(x, y, result_pars, 'size_decov_ordinary.png')
+	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}\n# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	plot_peaks(x, y, result_pars, 'size_decov_ordinary.pdf')
 
-
-	# size deconvolution with constrains
-	print('# Start cfDNA size deconvolution with constrains')
+	######  size deconvolution with constrains  ######
+	print('\n-> Size deconvolution with constrains')
 	result_pars = peak_decov_constrain(
 		x,
 		y,
 		[60,70,80,90,101,111,121,131,141,151,159,167,177,188,199,210],
 		max_scale=8,
 		)
-	print('# Finished')
+	intra_inter_amp_ratio, intra_inter_entropy_ratio = intra_inter_ratio(result_pars)
 
-	print('#With scale constrains')
 	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	plot_peaks(x, y, result_pars, 'size_decov_constrains.png')
+	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}\n# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	plot_peaks(x, y, result_pars, 'size_decov_constrains.pdf')
+
 
 	######  size deconvolution with constrains and L2 regularization   ######
 	x, y = [], []
@@ -305,16 +319,16 @@ if __name__ == '__main__':
 			y.append(num)
 
 	# size deconvolution with constrains and L2 regularization
-	print('# Start cfDNA size deconvolution with constrains and L2 regularization')
+	print('\n-> Size deconvolution with constrains and L2 regularization')
 	result_pars = peak_decov_l2_regularization(
 		x,
 		y,
 		peaks_cen = [121,131,141,151,159,167,177,188,199],
 		)
-	print('# Finished')
+	intra_inter_amp_ratio, intra_inter_entropy_ratio = intra_inter_ratio(result_pars)
 
-	print('#With scale constrains')
 	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	plot_peaks(x, y, result_pars, 'size_decov_L2_regularization.png')
+	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}\n# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	plot_peaks(x, y, result_pars, 'size_decov_L2_regularization.pdf')
