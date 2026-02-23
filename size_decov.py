@@ -273,8 +273,9 @@ if __name__ == '__main__':
 		for line in f:
 			size, num = line.rstrip().split()[:2]
 			size, num = int(size), float(num)
-			x.append(size)
-			y.append(num)
+			if 50 <= size <= 250:
+				x.append(size)
+				y.append(num)
 
 	######  ordinary size deconvolution  ######
 	print('\n-> Ordinary size deconvolution')
@@ -313,10 +314,11 @@ if __name__ == '__main__':
 	x, y = [], []
 	with open('./example_size_sWGS.txt') as f:
 		for line in f:
-			size, num = line.rstrip().split()
+			size, num = line.rstrip().split()[:2]
 			size, num = int(size), float(num)
-			x.append(size)
-			y.append(num)
+			if 50 <= size <= 250:
+				x.append(size)
+				y.append(num)
 
 	# size deconvolution with constrains and L2 regularization
 	print('\n-> Size deconvolution with constrains and L2 regularization')
