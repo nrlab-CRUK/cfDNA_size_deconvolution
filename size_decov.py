@@ -8,9 +8,6 @@ __version__ = '2.0'
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import numpy as np
-from lmfit import models
-from scipy import stats
 
 
 def peak_decov(x, y, peaks_cen, max_scale=None):
@@ -19,6 +16,9 @@ def peak_decov(x, y, peaks_cen, max_scale=None):
 	y: array of numbers or frequencies.
 	peaks_cen: array of roughtly locations.
 	Without scale constrains.'''
+	from lmfit import models
+	import numpy as np
+
 	x, y = np.array(x), np.array(y)/sum(y)*100
 	model_ar, model, params = [], None, None
 	for peak in peaks_cen:
@@ -52,6 +52,9 @@ def peak_decov(x, y, peaks_cen, max_scale=None):
 
 def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 	'''With scale constrains.'''
+	from lmfit import models
+	import numpy as np
+
 	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
 	model_ar, model, params = [], None, None
 	for peak in peaks_cen:
@@ -100,6 +103,7 @@ def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale
 	from lmfit import Minimizer, Parameters, report_fit
 	from lmfit.lineshapes import gaussian, lorentzian
 	from lmfit import models
+	import numpy as np
 
 	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
 	def residual(pars, x, data):
@@ -164,11 +168,14 @@ def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale
 
 
 def color_iter(num, color_family, min_frac, max_frac):
+	import numpy as np
 	color_family = eval("cm.{}".format(color_family))
 	return iter(color_family(np.linspace(min_frac, max_frac, num)))
 
 
 def plot_peaks(x, y, pars, fig_file='size_decov.pdf', title='', ylim_max=None):
+	import numpy as np
+	from scipy import stats
 	x, y = np.array(x), np.array(y)/sum(y)*100
 	model_ar, model, params = [], None, None
 	x_high = np.linspace(min(x), max(x), num=1000)
@@ -254,6 +261,7 @@ def plot_peaks(x, y, pars, fig_file='size_decov.pdf', title='', ylim_max=None):
 
 
 def intra_inter_ratio(result_pars):
+	import numpy as np
 	intra_amp, inter_amp, intra_scale, inter_scale = [], [], [], []
 	for loc, scale, amp in (result_pars):
 		if loc < 155:
