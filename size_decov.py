@@ -5,8 +5,6 @@ __author__ = 'Zhou Ze'
 __version__ = '2.0'
 
 
-import sys
-
 def peak_decov(x, y, peaks_cen, max_scale=None):
 	'''
 	x: array of sizes.
@@ -17,6 +15,7 @@ def peak_decov(x, y, peaks_cen, max_scale=None):
 	import numpy as np
 
 	x, y = np.array(x), np.array(y)/sum(y)*100
+	peaks_cen = sorted(peaks_cen)
 	model_ar, model, params = [], None, None
 	for peak in peaks_cen:
 		mod = models.LorentzianModel(prefix='peak{}_'.format(peak))
@@ -53,8 +52,9 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 	import numpy as np
 
 	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
+	peaks_cen = sorted(peaks_cen)
 	model_ar, model, params = [], None, None
-	for peak in peaks_cen:
+	for peak in sorted(peaks_cen):
 		mod = models.LorentzianModel(prefix='peak{}_'.format(peak))  # GaussianModel StudentsTModel
 		mod.set_param_hint('center', value=peak)
 		mod.set_param_hint('amplitude', min=0)
@@ -103,6 +103,7 @@ def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale
 	import numpy as np
 
 	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
+	peaks_cen = sorted(peaks_cen)
 	def residual(pars, x, data):
 		model = None
 		for idx in range(len(peaks_cen)):
