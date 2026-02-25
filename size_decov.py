@@ -46,12 +46,12 @@ def peak_decov(x, y, peaks_cen, max_scale=None):
 	return final_res
 
 
-def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
+def peak_decov_constrain(x_size, y_freq, peaks_cen, max_scale=None):
 	'''With scale constrains.'''
 	from lmfit import models
 	import numpy as np
 
-	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
+	x_size, y_freq = np.array(x_size), np.array(y_freq)/sum(y_freq)*100
 	peaks_cen = sorted(peaks_cen)
 	model_ar, model, params = [], None, None
 	for peak in sorted(peaks_cen):
@@ -80,7 +80,7 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 		else:
 			model = model + mod
 			params.update(par)
-	result = model.fit(fig_y, params, x=fig_x)
+	result = model.fit(y_freq, params, x=x_size)
 	print(result.fit_report(), f'\nAIC {result.aic}', f'\nBIC {result.bic}')
 
 	result_par = {}
@@ -96,13 +96,13 @@ def peak_decov_constrain(fig_x, fig_y, peaks_cen, max_scale=None):
 	return final_res
 
 
-def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale=8,lam=0.00002):
+def peak_decov_l2_regularization(x_size, y_freq, peaks_cen, min_scale=2, max_scale=8,lam=0.00002):
 	from lmfit import Minimizer, Parameters, report_fit
 	from lmfit.lineshapes import gaussian, lorentzian
 	from lmfit import models
 	import numpy as np
 
-	fig_x, fig_y = np.array(fig_x), np.array(fig_y)/sum(fig_y)*100
+	x_size, y_freq = np.array(x_size), np.array(y_freq)/sum(y_freq)*100
 	peaks_cen = sorted(peaks_cen)
 	def residual(pars, x, data):
 		model = None
@@ -150,7 +150,7 @@ def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale
 		else:
 			pfit.add(name='peak{}_sigma'.format(peak),  min=min_scale, max=max_scale)
 
-	mini = Minimizer(residual, pfit, fcn_args=(fig_x, fig_y))
+	mini = Minimizer(residual, pfit, fcn_args=(x_size, y_freq))
 	result = mini.least_squares()
 	pars = result.params
 
