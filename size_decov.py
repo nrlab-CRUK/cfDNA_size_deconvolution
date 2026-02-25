@@ -136,11 +136,11 @@ def peak_decov_l2_regularization(fig_x, fig_y, peaks_cen, min_scale=2, max_scale
 		#pfit.add(name=f'peak{peak}_center', value=peaks_cen[idx])
 
 		if 60 in peaks_cen and 70 in peaks_cen and peak == 70:
-			mod.set_param_hint('sigma', expr='peak60_sigma')
+			pfit.add(name='peak{}_sigma'.format(peak), expr='peak60_sigma')
 		elif 90 in peaks_cen and 80 in peaks_cen and peak == 90:
-			mod.set_param_hint('sigma', expr='peak80_sigma')
+			pfit.add(name='peak{}_sigma'.format(peak), expr='peak80_sigma')
 		elif 111 in peaks_cen and 101 in peaks_cen and peak == 111:
-			mod.set_param_hint('sigma', expr='peak101_sigma')
+			pfit.add(name='peak{}_sigma'.format(peak), expr='peak101_sigma')
 		elif 131 in peaks_cen and 121 in peaks_cen and peak == 131:
 			pfit.add(name='peak{}_sigma'.format(peak), expr='peak121_sigma')
 		elif 151 in peaks_cen and 141 in peaks_cen and peak == 151:
@@ -300,7 +300,8 @@ if __name__ == '__main__':
 	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}\n# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}')
+	print(f'# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
 	plot_peaks(x, y, result_pars, 'size_decov_ordinary.pdf')
 
 	######  size deconvolution with constrains  ######
@@ -316,7 +317,9 @@ if __name__ == '__main__':
 	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}\n# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}')
+	print(f'# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	plot_peaks(x, y, result_pars, 'size_decov_L2_regularization.pdf')
 	plot_peaks(x, y, result_pars, 'size_decov_constrains.pdf')
 
 
@@ -334,12 +337,13 @@ if __name__ == '__main__':
 	result_pars = peak_decov_l2_regularization(
 		x,
 		y,
-		peaks_cen = [121,131,141,151,159,167,177,188,199],
+		peaks_cen = [121,131,141,151,159,167,177,188,199],  # candidate 50,60,70,80,90,101,111
 		)
 	intra_inter_amp_ratio, intra_inter_entropy_ratio = intra_inter_ratio(result_pars)
 
 	print('#Location\tScale (bp)\tAmplitude (%)')
 	for loc, scl, amp in (result_pars):
 		print(f'{loc:.1f}\t{scl:.2f}\t{amp:.2f}')
-	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}\n# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
+	print(f'# Intra-/inter-nucleosomal amplitude ratio: {intra_inter_amp_ratio}')
+	print(f'# Intra-/inter-nucleosomal entropy ratio: {intra_inter_entropy_ratio}')
 	plot_peaks(x, y, result_pars, 'size_decov_L2_regularization.pdf')
