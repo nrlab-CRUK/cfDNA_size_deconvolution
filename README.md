@@ -21,7 +21,7 @@ example_size.txt: size profile of an example plasma cfDNA sample.
   - Column 2: Fragment count at the corresponding length
 ```
 
-* Usage
+* Usage demo
 ```
 python size_decov.py
 ```
